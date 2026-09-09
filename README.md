@@ -50,3 +50,7 @@ Authorization: Bearer <token>
 ```
 
 Invalid or missing tokens return `401 Unauthorized`.
+
+Logout is available at `DELETE /api/users/logout` with the same
+`Authorization: Bearer <token>` header. A successful logout deletes the
+session token and returns `{ "data": "ok" }`.
