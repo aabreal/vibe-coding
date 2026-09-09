@@ -124,11 +124,11 @@ export type LogoutUserResult =
   | { ok: false; reason: 'unauthorized' };
 
 export async function logoutUser(token: string): Promise<LogoutUserResult> {
-  const deletedSessions = await db
+  const [deletedSessions] = await db
     .delete(schema.sessions)
     .where(eq(schema.sessions.token, token));
 
-  if (deletedSessions[0].affectedRows === 0) {
+  if (deletedSessions.affectedRows === 0) {
     return { ok: false, reason: 'unauthorized' };
   }
 
