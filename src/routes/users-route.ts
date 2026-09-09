@@ -33,6 +33,11 @@ export const usersRoute = new Elysia({ prefix: '/api' }).post(
   },
   {
     body: registerUserBody,
+    detail: {
+      tags: ['Users'],
+      summary: 'Register a user',
+      description: 'Membuat user baru dan menyimpan password sebagai bcrypt hash.',
+    },
   },
 );
 
@@ -50,50 +55,75 @@ usersRoute.post(
   },
   {
     body: loginUserBody,
+    detail: {
+      tags: ['Authentication'],
+      summary: 'Log in a user',
+      description: 'Memverifikasi kredensial dan membuat UUID session token.',
+    },
   },
 );
 
-usersRoute.get('/users/current', async ({ headers, set }) => {
-  const authorization = headers.authorization;
-  const bearerMatch = authorization?.match(/^Bearer\s+(\S+)$/i);
+usersRoute.get(
+  '/users/current',
+  async ({ headers, set }) => {
+    const authorization = headers.authorization;
+    const bearerMatch = authorization?.match(/^Bearer\s+(\S+)$/i);
 
-  const token = bearerMatch?.[1];
-  if (!token) {
-    set.status = 401;
-    return { error: 'unauthorized' };
-  }
+    const token = bearerMatch?.[1];
+    if (!token) {
+      set.status = 401;
+      return { error: 'unauthorized' };
+    }
 
-  const result = await getCurrentUser(token);
-  if (!result.ok) {
-    set.status = 401;
-    return { error: 'unauthorized' };
-  }
+    const result = await getCurrentUser(token);
+    if (!result.ok) {
+      set.status = 401;
+      return { error: 'unauthorized' };
+    }
 
-  return {
-    data: {
-      id: result.user.id,
-      name: result.user.name,
-      email: result.user.email,
-      created_at: result.user.createdAt,
+    return {
+      data: {
+        id: result.user.id,
+        name: result.user.name,
+        email: result.user.email,
+        created_at: result.user.createdAt,
+      },
+    };
+  },
+  {
+    detail: {
+      tags: ['Authentication'],
+      summary: 'Get the current user',
+      security: [{ bearerAuth: [] }],
     },
-  };
-});
+  },
+);
 
-usersRoute.delete('/users/logout', async ({ headers, set }) => {
-  const authorization = headers.authorization;
-  const bearerMatch = authorization?.match(/^Bearer\s+(\S+)$/i);
-  const token = bearerMatch?.[1];
+usersRoute.delete(
+  '/users/logout',
+  async ({ headers, set }) => {
+    const authorization = headers.authorization;
+    const bearerMatch = authorization?.match(/^Bearer\s+(\S+)$/i);
+    const token = bearerMatch?.[1];
 
-  if (!token) {
-    set.status = 401;
-    return { error: 'unauthorized' };
-  }
+    if (!token) {
+      set.status = 401;
+      return { error: 'unauthorized' };
+    }
 
-  const result = await logoutUser(token);
-  if (!result.ok) {
-    set.status = 401;
-    return { error: 'unauthorized' };
-  }
+    const result = await logoutUser(token);
+    if (!result.ok) {
+      set.status = 401;
+      return { error: 'unauthorized' };
+    }
 
-  return { data: 'ok' };
-});
+    return { data: 'ok' };
+  },
+  {
+    detail: {
+      tags: ['Authentication'],
+      summary: 'Log out a user',
+      security: [{ bearerAuth: [] }],
+    },
+  },
+);

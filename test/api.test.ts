@@ -30,6 +30,27 @@ async function cleanupTestData() {
 }
 
 describe('public API validation', () => {
+  test('serves Swagger UI and OpenAPI JSON', async () => {
+    const uiResponse = await request('/swagger');
+    const specificationResponse = await request('/swagger/json');
+    const specification = (await specificationResponse.json()) as {
+      openapi?: string;
+      paths?: Record<string, unknown>;
+      components?: { securitySchemes?: Record<string, unknown> };
+    };
+
+    expect(uiResponse.status).toBe(200);
+    expect(specificationResponse.status).toBe(200);
+    expect(specification.openapi).toBe('3.0.3');
+    expect(specification.paths).toHaveProperty('/api/users');
+    expect(specification.paths).toHaveProperty('/api/users/login');
+    expect(specification.paths).toHaveProperty('/api/users/current');
+    expect(specification.paths).toHaveProperty('/api/users/logout');
+    expect(specification.components?.securitySchemes).toHaveProperty(
+      'bearerAuth',
+    );
+  });
+
   test('returns the API status from the root endpoint', async () => {
     const response = await request('/');
     const body = await response.json();
