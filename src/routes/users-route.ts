@@ -3,6 +3,7 @@ import { Elysia, t } from 'elysia';
 import {
   getCurrentUser,
   loginUser,
+  logoutUser,
   registerUser,
 } from '../services/users-service.ts';
 
@@ -76,4 +77,23 @@ usersRoute.get('/users/current', async ({ headers, set }) => {
       created_at: result.user.createdAt,
     },
   };
+});
+
+usersRoute.delete('/users/logout', async ({ headers, set }) => {
+  const authorization = headers.authorization;
+  const bearerMatch = authorization?.match(/^Bearer\s+(\S+)$/i);
+  const token = bearerMatch?.[1];
+
+  if (!token) {
+    set.status = 401;
+    return { error: 'unauthorized' };
+  }
+
+  const result = await logoutUser(token);
+  if (!result.ok) {
+    set.status = 401;
+    return { error: 'unauthorized' };
+  }
+
+  return { data: 'ok' };
 });
