@@ -1,8 +1,9 @@
 import { Elysia } from 'elysia';
 
 import { db, ensureDatabaseReady, schema } from './db/index.ts';
+import { usersRoute } from './routes/users-route.ts';
 
-export const app = new Elysia();
+export const app = new Elysia().use(usersRoute);
 
 app.get('/', () => ({
   name: 'vibe-coding-api',
@@ -29,7 +30,14 @@ app.get('/api/users', async () => {
   }
 
   try {
-    const users = await db.select().from(schema.users);
+    const users = await db
+      .select({
+        id: schema.users.id,
+        name: schema.users.name,
+        email: schema.users.email,
+        createdAt: schema.users.createdAt,
+      })
+      .from(schema.users);
 
     return {
       users,
