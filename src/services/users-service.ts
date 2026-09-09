@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { hash } from 'bcryptjs';
+import { compare, hash } from 'bcryptjs';
 
 import { db, schema } from '../db/index.ts';
 
@@ -47,4 +47,39 @@ export async function registerUser(
   }
 
   return { ok: true };
+}
+
+export type LoginUserInput = {
+  email: string;
+  password: string;
+};
+
+export type LoginUserResult =
+  | { ok: true; token: string }
+  | { ok: false; reason: 'invalid_credentials' };
+
+export async function loginUser(
+  input: LoginUserInput,
+): Promise<LoginUserResult> {
+  const matchingUsers = await db
+    .select({
+      id: schema.users.id,
+      password: schema.users.password,
+    })
+    .from(schema.users)
+    .where(eq(schema.users.email, input.email))
+    .limit(1);
+
+  const user = matchingUsers[0];
+  if (!user || !(await compare(input.password, user.password))) {
+    return { ok: false, reason: 'invalid_credentials' };
+  }
+
+  const token = crypto.randomUUID();
+  await db.insert(schema.sessions).values({
+    token,
+    userId: user.id,
+  });
+
+  return { ok: true, token };
 }
