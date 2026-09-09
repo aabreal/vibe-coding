@@ -41,3 +41,12 @@ Login is available at `POST /api/users/login`:
 
 A successful login returns a UUID session token. Invalid credentials return
 `401 Unauthorized` with `{ "error": "email atau password salah" }`.
+
+The current authenticated user can be fetched with `GET /api/users/current`
+using the login token:
+
+```text
+Authorization: Bearer <token>
+```
+
+Invalid or missing tokens return `401 Unauthorized`.

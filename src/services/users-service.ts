@@ -83,3 +83,38 @@ export async function loginUser(
 
   return { ok: true, token };
 }
+
+export type CurrentUserResult =
+  | {
+      ok: true;
+      user: {
+        id: number;
+        name: string;
+        email: string;
+        createdAt: Date;
+      };
+    }
+  | { ok: false; reason: 'unauthorized' };
+
+export async function getCurrentUser(
+  token: string,
+): Promise<CurrentUserResult> {
+  const matchingUsers = await db
+    .select({
+      id: schema.users.id,
+      name: schema.users.name,
+      email: schema.users.email,
+      createdAt: schema.users.createdAt,
+    })
+    .from(schema.sessions)
+    .innerJoin(schema.users, eq(schema.sessions.userId, schema.users.id))
+    .where(eq(schema.sessions.token, token))
+    .limit(1);
+
+  const user = matchingUsers[0];
+  if (!user) {
+    return { ok: false, reason: 'unauthorized' };
+  }
+
+  return { ok: true, user };
+}
