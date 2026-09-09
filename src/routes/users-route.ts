@@ -1,6 +1,10 @@
 import { Elysia, t } from 'elysia';
 
-import { loginUser, registerUser } from '../services/users-service.ts';
+import {
+  getCurrentUser,
+  loginUser,
+  registerUser,
+} from '../services/users-service.ts';
 
 const registerUserBody = t.Object({
   name: t.String({ minLength: 1, maxLength: 255 }),
@@ -47,3 +51,29 @@ usersRoute.post(
     body: loginUserBody,
   },
 );
+
+usersRoute.get('/users/current', async ({ headers, set }) => {
+  const authorization = headers.authorization;
+  const bearerMatch = authorization?.match(/^Bearer\s+(\S+)$/i);
+
+  const token = bearerMatch?.[1];
+  if (!token) {
+    set.status = 401;
+    return { error: 'unauthorized' };
+  }
+
+  const result = await getCurrentUser(token);
+  if (!result.ok) {
+    set.status = 401;
+    return { error: 'unauthorized' };
+  }
+
+  return {
+    data: {
+      id: result.user.id,
+      name: result.user.name,
+      email: result.user.email,
+      created_at: result.user.createdAt,
+    },
+  };
+});
