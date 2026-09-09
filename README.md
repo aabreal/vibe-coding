@@ -54,3 +54,12 @@ Invalid or missing tokens return `401 Unauthorized`.
 Logout is available at `DELETE /api/users/logout` with the same
 `Authorization: Bearer <token>` header. A successful logout deletes the
 session token and returns `{ "data": "ok" }`.
+
+Run API tests with:
+
+```bash
+bun test
+```
+
+Database integration tests are enabled with `RUN_INTEGRATION_TESTS=1` after
+the test database has been migrated.
