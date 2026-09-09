@@ -15,6 +15,7 @@ Drizzle ORM, dan MySQL.
 - **bcryptjs**: hashing dan verifikasi password.
 - **dotenv**: membaca konfigurasi dari file environment.
 - **drizzle-kit**: pembuatan dan eksekusi migration.
+- **@elysiajs/swagger**: OpenAPI specification dan Swagger UI.
 
 ## Arsitektur Project
 
@@ -75,6 +76,14 @@ Session dihapus ketika user melakukan logout. Penghapusan user juga menghapus
 session terkait melalui foreign key cascade.
 
 ## API yang Tersedia
+
+Dokumentasi interaktif tersedia saat aplikasi berjalan:
+
+- Swagger UI: `http://localhost:3000/swagger`
+- OpenAPI JSON: `http://localhost:3000/swagger/json`
+
+Gunakan tombol **Authorize** di Swagger UI untuk memasukkan token dengan
+format `Bearer <token>` sebelum mencoba endpoint current user atau logout.
 
 ### `GET /`
 
@@ -245,3 +254,5 @@ bun test
 
 Integration test membersihkan user dan session test agar hasil pengujian dapat
 dijalankan berulang secara konsisten.
+
+Swagger juga diverifikasi oleh test API melalui endpoint UI dan OpenAPI JSON.
