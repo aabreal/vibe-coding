@@ -13,6 +13,7 @@ export type RegisterUserResult =
   | { ok: true }
   | { ok: false; reason: 'email_taken' };
 
+// Creates a user after checking email uniqueness and hashing the password.
 export async function registerUser(
   input: RegisterUserInput,
 ): Promise<RegisterUserResult> {
@@ -58,6 +59,7 @@ export type LoginUserResult =
   | { ok: true; token: string }
   | { ok: false; reason: 'invalid_credentials' };
 
+// Verifies credentials and creates a new database session for the user.
 export async function loginUser(
   input: LoginUserInput,
 ): Promise<LoginUserResult> {
@@ -96,6 +98,7 @@ export type CurrentUserResult =
     }
   | { ok: false; reason: 'unauthorized' };
 
+// Resolves the user associated with an authenticated session token.
 export async function getCurrentUser(
   token: string,
 ): Promise<CurrentUserResult> {
@@ -123,6 +126,7 @@ export type LogoutUserResult =
   | { ok: true }
   | { ok: false; reason: 'unauthorized' };
 
+// Deletes the session identified by the provided token.
 export async function logoutUser(token: string): Promise<LogoutUserResult> {
   const [deletedSessions] = await db
     .delete(schema.sessions)
