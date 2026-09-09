@@ -29,3 +29,15 @@ The user registration endpoint is available at `POST /api/users`:
 ```
 
 Passwords are stored as bcrypt hashes and are never returned by the API.
+
+Login is available at `POST /api/users/login`:
+
+```json
+{
+  "email": "aab@localhost",
+  "password": "ajarkan"
+}
+```
+
+A successful login returns a UUID session token. Invalid credentials return
+`401 Unauthorized` with `{ "error": "email atau password salah" }`.
